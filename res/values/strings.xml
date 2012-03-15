@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, MyGPSActivity!</string>
-    <string name="app_name">MyGPS</string>
+    <string name="hello">Hello World, TestMapActivity!</string>
+    <string name="app_name">路人甲</string>
+    <string name="PASSING">路过</string>
 
 </resources>
