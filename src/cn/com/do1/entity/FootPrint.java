@@ -9,21 +9,25 @@ import java.util.Date;
  */
 public class FootPrint {
 
-	private Integer id;
-	private Integer userId;
-	private String latitude;
-	private String longitude;
-	private String altitude;
-	private String time;
-	private String countryName;
-	private String cityName;
-	private String countyName;
-	private String townName;
-	private String villageName;
-	private String mobileType;
-	private String name;
-	private String description;
-	private String photo;
+	private Integer id = null;
+	private Integer userId = null;
+	private String latitude = null;
+	private String longitude = null;
+	private String altitude = null;
+	private String time = null;
+	private String countryName = null;
+	private String cityName = null;
+	private String countyName = null;
+	private String townName = null;
+	private String villageName = null;
+	private String mobileType = null;
+	private String name = null;
+	private String description = null;
+	private String photo = null;
+	
+	public FootPrint(){
+		super();
+	}
 	
 	public Integer getId() {
 		return id;
