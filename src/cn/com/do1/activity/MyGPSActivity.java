@@ -41,6 +41,7 @@ public class MyGPSActivity extends MapActivity {
 	private MapController mMapController = null;
 	private MyLocationOverlay myLocationOverlay = null;
 	private List<Overlay> list = null;
+	private Drawable drawableHand = null;
 	
 	protected final static int MENU_PASSING = Menu.FIRST;
 	
@@ -75,6 +76,16 @@ public class MyGPSActivity extends MapActivity {
          	toast.setGravity(Gravity.CENTER, 0, 0);
          	toast.show();
          	//保存当前经纬度信息到sqlite中，并在地图上显示一个脚印 (1)
+         	myLocationOverlay = addPoint();
+			
+			//在当前经纬度显示一个手指指示
+         	geoPoint = new GeoPoint((int) ((latestLocation.getLatitude()+0.001) * 1000000), (int) ((latestLocation.getLongitude()+0.003) * 1000000));
+			OverlayItem overlayitem0 = new OverlayItem(geoPoint, "("+ latestLocation.getLatitude() + "," + latestLocation.getLongitude() +")", "");
+			drawableHand.setBounds(0, 0, drawableHand.getIntrinsicWidth(), drawableHand.getIntrinsicHeight());  
+			overlayitem0.setMarker(drawableHand);
+			
+			myLocationOverlay.addOverlay(overlayitem0);
+			showMapView();
          	break;
         default:
         	break;
@@ -87,6 +98,7 @@ public class MyGPSActivity extends MapActivity {
 	 */
 	private void view_init(){
 		mapView = (MapView)findViewById(R.id.mapview);
+		drawableHand = this.getResources().getDrawable(R.drawable.hand_point);   //手指图标图片
 	}
 	
 	/**
@@ -121,8 +133,16 @@ public class MyGPSActivity extends MapActivity {
             	System.out.println("onLocationChanged");
             	latestLocation = location;
             	if(latestLocation != null){
+            		myLocationOverlay = addPoint();
+        			
+        			//在当前经纬度显示一个手指指示
             		geoPoint = new GeoPoint((int) (latestLocation.getLatitude() * 1000000), (int) (latestLocation.getLongitude() * 1000000));
-            		showMapView();
+        			OverlayItem overlayitem0 = new OverlayItem(geoPoint, "("+ latestLocation.getLatitude() + "," + latestLocation.getLongitude() +")", "");
+        			drawableHand.setBounds(0, 0, drawableHand.getIntrinsicWidth(), drawableHand.getIntrinsicHeight());  
+        			overlayitem0.setMarker(drawableHand);
+        			
+        			myLocationOverlay.addOverlay(overlayitem0);
+        			showMapView();
             	}
             	else{
             		Toast toast = Toast.makeText(getApplicationContext(),"取不到位置，请确定GPS服务已开启!", Toast.LENGTH_LONG);
@@ -160,6 +180,7 @@ public class MyGPSActivity extends MapActivity {
 	 */
 	private void showMapView(){
         //添加Overlay，用于显示标注信息
+		list.clear();
         list.add(myLocationOverlay);
 
 	}
@@ -198,28 +219,39 @@ public class MyGPSActivity extends MapActivity {
 			Toast toast = Toast.makeText(getApplicationContext(),"LOCATION IS NULL EXCEPTION", Toast.LENGTH_LONG);
 		   	toast.setGravity(Gravity.CENTER, 0, 0);
 		   	toast.show();
+		   	myLocationOverlay = addPoint();
+		   	showMapView();
 		} else{
 			
-			Drawable drawable = this.getResources().getDrawable(R.drawable.small_footprint);   //默认图标图片
-			myLocationOverlay = new MyLocationOverlay(drawable,this);
+			myLocationOverlay = addPoint();
 			
 			//在当前经纬度显示一个手指指示
-			Drawable drawableHand = this.getResources().getDrawable(R.drawable.hand_point);   //手指图标图片
 			geoPoint = new GeoPoint((int) (latestLocation.getLatitude() * 1000000), (int) (latestLocation.getLongitude() * 1000000));
-			OverlayItem overlayitem1 = new OverlayItem(geoPoint, "("+ latestLocation.getLatitude() + "," + latestLocation.getLongitude() +")", "");
+			OverlayItem overlayitem0 = new OverlayItem(geoPoint, "("+ latestLocation.getLatitude() + "," + latestLocation.getLongitude() +")", "");
 			drawableHand.setBounds(0, 0, drawableHand.getIntrinsicWidth(), drawableHand.getIntrinsicHeight());  
-			overlayitem1.setMarker(drawableHand);  
+			overlayitem0.setMarker(drawableHand);
 			
-			//取出sqlite中的数据，并在地图中显示 (2)
-			GeoPoint point = new GeoPoint((int) ((latestLocation.getLatitude()+0.00001) * 1000000), (int) ((latestLocation.getLongitude()+0.00003) * 1000000));
-			OverlayItem overlayitem2 = new OverlayItem(point, "脚印", "");
-			
-			myLocationOverlay.addOverlay(overlayitem1);
-			myLocationOverlay.addOverlay(overlayitem2);
+			myLocationOverlay.addOverlay(overlayitem0);
 			
 			mMapController.setCenter(geoPoint);
 		   	showMapView();
 		}
+	}
+	
+	/**
+	 * 包数据库中的点取到图层中
+	 * @return
+	 */
+	private MyLocationOverlay addPoint(){
+		Drawable drawable = this.getResources().getDrawable(R.drawable.small_footprint);   //默认图标图片
+		MyLocationOverlay locationOverlay = new MyLocationOverlay(drawable,this);
+		
+		//取出sqlite中的数据，并在地图中显示 (2)
+		GeoPoint point = new GeoPoint((int) ((latestLocation.getLatitude()+0.00001) * 1000000), (int) ((latestLocation.getLongitude()+0.00003) * 1000000));
+		OverlayItem overlayitem1 = new OverlayItem(point, "", "");
+		
+		locationOverlay.addOverlay(overlayitem1);
+		return locationOverlay;
 	}
 
 	@Override
@@ -253,6 +285,12 @@ public class MyGPSActivity extends MapActivity {
         public boolean draw(Canvas canvas, MapView mapView, boolean shadow, long when)
         {
             super.draw(canvas, mapView, shadow);
+            
+            //第一个item为当前位置
+            OverlayItem overlayitem0 = new OverlayItem(geoPoint, "("+ latestLocation.getLatitude() + "," + latestLocation.getLongitude() +")", "");;
+            //drawableHand.setBounds(0, 0, drawableHand.getIntrinsicWidth(), drawableHand.getIntrinsicHeight());  
+			//overlayitem0.setMarker(drawableHand);
+			items.set(0, overlayitem0);
             
             // 将经纬度转换成实际屏幕坐标
             Projection  projection  = mapView.getProjection();	//用于屏幕像素点坐标系统和地球表面经纬度点坐标系统之间的变换
