@@ -239,7 +239,7 @@ public class MyGPSActivity extends MapActivity {
 	}
 	
 	/**
-	 * 包数据库中的点取到图层中
+	 * 把数据库中的点取到图层中
 	 * @return
 	 */
 	private MyLocationOverlay addPoint(){
